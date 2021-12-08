@@ -5,7 +5,7 @@ import chisel3.util._
 
 import leros.shared.Constants._
 import leros.Types._
-
+//解码器输出
 class DecodeOut extends Bundle {
   val ena = Bool()
   val op = UInt()
@@ -21,7 +21,7 @@ class DecodeOut extends Bundle {
   val nosext = Bool()
   val exit = Bool()
 }
-
+//用于给输出设置默认值
 object DecodeOut {
   def default: DecodeOut = {
     val v = Wire(new DecodeOut)
@@ -61,15 +61,26 @@ class Decode() extends Module {
     is (BRN.U >> 4.U) { isBranch := true.B }
   }
    */
+   //0X0f 0000_1111 所以这个mask就是把br指令有效的左4位取出来
+   //感觉这个与有点多余，难道这里还会有x/z吗
   def mask(i: Int) = ((i >> 4) & 0x0f).asUInt
-
+/*
+  val BR = 0x80   1000_0000
+  val BRZ = 0x90  1001_0000
+  val BRNZ = 0xa0 1010_0000
+  val BRP = 0xb0  1011_0000
+  val BRN = 0xc0  1100_0000
+*/
+// 76543210 
+// ————     (7,4)就是头4位 
   val field = io.din(7, 4)
   when (field === mask(BR)) { isBranch := true.B }
   when (field === mask(BRZ)) { isBranch := true.B }
   when (field === mask(BRNZ)) { isBranch := true.B }
   when (field === mask(BRP)) { isBranch := true.B }
   when (field === mask(BRN)) { isBranch := true.B }
-
+//BRANCH_MASK 0xf0 1111_0000
+//如果是branch类指令,把din的头4位(也就是branch指令内容)作为instr,如果不是,把整个din作为instr
   val instr = Mux(isBranch, io.din & BRANCH_MASK.U, io.din)
 
   switch(instr) {

@@ -36,14 +36,15 @@ object Assembler {
 
   // collect destination addresses in first pass
   val symbols = collection.mutable.Map[String, Int]()
-
+  //assemble的主体是两个pass
   def assemble(prog: String): Array[Int] = {
     assemble(prog, false)
     assemble(prog, true)
   }
-
+  //pass2 用来标记当下这个再跑的pass(assemble函数)是不是第二个pass
+  //真的离谱的方法，你就命名两个不同的函数名会死吗
   def assemble(prog: String, pass2: Boolean): Array[Int] = {
-
+     // !Source内容以后可以探究一下库
     val source = Source.fromFile(prog)
     var program = List[Int]()
     var pc = 0
@@ -60,7 +61,7 @@ object Assembler {
       assert(s.startsWith("r"), "Register numbers shall start with \'r\'")
       s.substring(1).toInt
     }
-
+    //取prog的每行
     for (line <- source.getLines()) {
       if (!pass2) println(line)
       val tokens = line.trim.split(" ")
@@ -69,6 +70,7 @@ object Assembler {
 
       // println(s"length: ${tokens.length}")
       // tokens.foreach(println)
+      
       val Pattern = "(.*:)".r
       val instr = tokens(0) match {
         case "//" => // comment

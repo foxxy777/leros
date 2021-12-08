@@ -14,7 +14,7 @@ import leros.util._
 
 
 
-
+//这就相当于是把一些线拉出来以debug
 class Debug extends Bundle {
   val acc = Output(UInt())
   val pc = Output(UInt())
@@ -29,6 +29,8 @@ class Debug extends Bundle {
   *
   * FIXME: Verilog generation from Chisel results in logic, not in a ROM.
   */
+  //memAddrWidth，指定多少位用于寻址，也就是指定了rom的深度
+  
 class InstrMem(memAddrWidth: Int, prog: String) extends Module {
   val io = IO(new Bundle {
     val addr = Input(UInt(memAddrWidth.W))
@@ -36,9 +38,11 @@ class InstrMem(memAddrWidth: Int, prog: String) extends Module {
   })
   val code = Assembler.getProgram(prog)
   assert(scala.math.pow(2, memAddrWidth) >= code.length, "Program too large")
+  //这里指定了宽度是16bit
   val progMem = VecInit(code.map(_.asUInt(16.W)))
   val memReg = RegInit(0.U(memAddrWidth.W))
   memReg := io.addr
+  //？
   io.instr := progMem(memReg)
 }
 

@@ -14,11 +14,13 @@ object Types {
   *
   * @param size
   */
+  //这ALU的位宽的任意的
 class AluAccu(size: Int) extends Module {
   val io = IO(new Bundle {
     val op = Input(UInt(3.W))
     val din = Input(UInt(size.W))
-    val ena = Input(Bool())
+    val ena = Input(Bool())//enable = 1时候可以输出结果
+    //accu 是 ALU result
     val accu = Output(UInt(size.W))
   })
 
@@ -27,6 +29,7 @@ class AluAccu(size: Int) extends Module {
   val op = io.op
   val a = accuReg
   val b = io.din
+  //可以理解成就是连了下assign
   val res = WireDefault(a)
 
   switch(op) {
